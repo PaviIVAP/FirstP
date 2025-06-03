@@ -1,0 +1,497 @@
+pipeline{
+
+   agent any
+      stages{
+
+        stage('checkout'){
+
+           steps{
+                git "https://git.example"
+
+
+}
+
+}
+         stage('run command'){
+            steps{
+
+                sh 'echo "list all the files and folders"'
+                sh "ls -la"
+}
+
+
+}
+
+}
+--------------------------------------
+using archiveartifacts 
+
+piepline{
+
+   agent any
+
+parameters{
+ booleanparam(name:'DEPLOY', defaultvalue:'true', description:'to deploy basedon ool value')
+}
+stages{
+
+stage("Checkout"){
+steps{
+
+git "https://example.com"
+}
+}
+
+stage('Build'){
+steps{
+
+echo "Compiling"
+}
+
+stage('Archive'){}
+
+steps{
+archiveartifacts artifact: "**/target/*.jar"
+}
+stage('Deploy'){
+steps{
+script{
+if(param.DEPLOY){
+echo "Deploying in prod..."
+}
+else{
+echo "Skipping"
+}
+
+
+
+}
+}
+}
+
+
+}
+}
+
+    
+
+}
+
+}
+-----------------------------------------------------------------------------
+run unit tests and show resukt using Junit
+
+pipeline{
+
+
+agent any
+
+  stages{
+
+
+stage('build'){
+
+steps{
+echo "Compiling code"
+}
+}
+
+
+
+stage('archiving'){
+
+
+steps{
+
+archiveartifacts artifact: "**/target/*.jar"  
+
+
+}
+
+stage('test'){
+
+steps{
+
+echo "running tests"
+
+sh 'mkdir -p /target/test-results'
+sh '"echo <testsuite><testcase classname=\'SampleTest\' name=\'testExample\'/></testsuite>" > target/test-results/test-result.xml"'=================>this 
+
+will run unit test
+
+
+}
+
+
+}
+
+stage('report creation'){
+
+steps{
+junit  target/test-results/test-result.xml           ===============================> this will show report in the ui using junit
+
+
+
+}
+}
+
+}
+
+
+mvn install, build
+It compiles the .java code.
+
+Then packages it into a .jar or .war file.
+The .jar file is stored in target/
+
+surefire, 
+These plugins generate test results in .xml files.
+
+These .xml files are also stored in target/, usually inside target/surefire-reports/
+
+
+Action	                        What happens	                        Output goes where
+==========================================================================================
+mvn package or mvn install	Code is compiled + JAR/WAR created	target/*.jar
+mvn test	                Tests are executed	                target/surefire-reports/*.xml
+
+archiveArtifacts artifacts: '**/target/*.jar' → Save the compiled .jar as a downloadable file.
+
+junit 'target/surefire-reports/*.xml' → Show test results from .xml.
+
+
+1.When you build the project (mvn package, mvn install, etc.)
+===========================================================
+It compiles the .java code.
+Then packages it into a .jar or .war file.
+The .jar file is stored in target/
+
+2. When you run tests (mvn test)
+========================================================
+Maven uses plugins like Surefire or Failsafe to run tests.
+These plugins generate test results in .xml files.
+These .xml files are also stored in target/, usually inside target/surefire-reports/
+
+}
+
+--------------------------------------------------------------------------------------
+
+using  loops, map, list, if, when
+
+pipeline {
+    agent any
+
+    stages {
+
+        stage('User Input') {
+            steps {
+                script {
+                    def userInput = input(
+                        message: 'Do you want to run deployments?',
+                        ok: 'Confirm',
+                        parameters: [
+                            booleanParam(
+                                defaultValue: true,
+                                description: 'Check to proceed with deployments',
+                                name: 'PROCEED'
+                            )
+                        ]
+                    )
+
+                    env.PROCEED = userInput ? "true" : "false"
+                    echo "User selected to proceed: ${env.PROCEED}"
+                }
+            }
+        }
+
+        stage('Environment Setup') {
+            steps {
+                script {
+                    // Define a map of environments and versions
+                    def envMap = [
+                        dev : "2.3.0",
+                        qa  : "2.3.1",
+                        prod: null
+                    ]
+
+                    echo "🔍 Checking environment versions..."
+                    envMap.each { envName, version ->
+                        if (version) {
+                            echo "✅ ${envName.toUpperCase()} is set for version ${version}"
+                        } else {
+                            echo "⚠️ No version defined for ${envName.toUpperCase()}"
+                        }
+                    }
+
+                    // Saving to env for later stages if needed
+                    env.ENV_MAP = envMap.toString()
+                }
+            }
+        }
+
+        stage('Fruits List') {
+            steps {
+                script {
+                    def fruits = ['apple', 'banana', 'mango']
+                    echo "🍎 Listing fruits:"
+                    fruits.each { fruit ->
+                        echo " - ${fruit}"
+                    }
+                }
+            }
+        }
+
+        stage('Deployment') {
+            when {
+                expression {
+                    return env.PROCEED == 'true'
+                }
+            }
+            steps {
+                script {
+                    def envMap = [
+                        dev : "2.3.0",
+                        qa  : "2.3.1",
+                        prod: null
+                    ]
+
+                    echo "🚀 Starting Deployment Process..."
+                    envMap.each { envName, version ->
+                        if (version) {
+                            echo "📦 Deploying version ${version} to ${envName.toUpperCase()}"
+                            // Add deployment logic here (e.g., sh "deploy --env=${envName} --version=${version}")
+                        } else {
+                            echo "❌ Skipping ${envName.toUpperCase()} — no version found."
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+------------------------------
+practice
+
+pipeline{
+
+
+agent any
+
+stages{
+
+stage(Checkout){
+steps{
+
+git "https://git.exampe.com"
+
+
+
+}
+
+stage('input'){
+
+
+def userInput = {
+input( message:"do you want to deploy",
+ok: "yes deploying"
+boleanparam(defaultValue:'true', name:'PROCEED', description:'To depoly')
+
+)
+env.input=userInput ? "true" : "false"// setting string value type
+echo 'input is ${env.input}'
+
+}
+
+
+
+}
+stage('envroinment setup'){
+
+steps{
+
+def envMap= [
+
+dev:'2.1.0',
+prod:'2.1.4',
+qa:'2.1.6'
+]
+
+//now justing printing to see the enviroinment setup
+
+envMap.each{
+envi, version ->
+
+if(env.input){
+echo 'the env ${env} is the version for ${version}'
+}else{
+echo 'the env${env} is not set with version value it is ${version}'
+
+
+}
+
+
+}
+
+
+}
+
+
+//fruits list
+stage('fruists looping'){
+steps{
+
+
+def fruits['apple', 'banana', 'oraneg']
+//using each loop
+fruits.each(
+fruit-> echo "${fruit}"
+
+)
+
+} }
+
+//  	deploymnet
+
+stage('Deploymnet'){
+
+steps{
+def envMap= [
+
+dev:'2.1.0',
+prod:'2.1.4',
+qa:'2.1.6'
+]
+
+when{
+
+expression{
+return env.PROCEED=='true'
+}
+
+steps{
+envMap.each{ envname, version->
+if(version){
+
+echo "deploying to env ${envname} to this ${version}"            //This checks if version is not null or empty  //This checks if version is not null or empty
+}
+}
+
+
+
+}else
+
+
+echo "❌ Skipping ${envName.toUpperCase()} — no version found."
+
+
+
+
+}
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+}
+
+
+
+
+
+
+}
+
+
+
+
+}
+
+
+
+
+}
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+

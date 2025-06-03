@@ -1,0 +1,109 @@
+Docker commands
+
+🐳 Image Commands
+Command	Description
+docker build -t <name>:<tag> .	Build image from Dockerfile
+docker images	List all local images
+docker rmi <image-id/name>	Remove image
+docker history <image>	Show image layer history
+docker tag <image> <repo:tag>	Tag image for pushing
+docker pull <image>	Download image from Docker Hub
+docker push <repo:tag>	Upload image to Docker Hub
+
+📦 Container Commands
+Command	Description
+docker run <image>	Run a container
+docker run -d <image>	Run in background (detached)
+docker run -it <image> bash	Run interactively with terminal
+docker start <container-id>	Start a stopped container
+docker stop <container-id>	Stop a running container
+docker restart <container-id>	Restart a container
+docker rm <container-id>	Remove a container
+docker exec -it <container> bash	Execute command inside running container
+docker logs <container-id>	Show container logs
+docker cp <container>:/path ./host	Copy files from container to host
+
+📋 Information & Inspection
+Command	Description
+docker ps	List running containers
+docker ps -a	List all containers
+docker inspect <image/container>	Detailed JSON info
+docker stats	Real-time resource usage of containers
+docker top <container-id>	Show running processes in container
+
+🌐 Networking & Ports
+Command	Description
+docker network ls	List Docker networks
+docker network inspect <network>	Details about a network
+docker run -p 8080:80 <image>	Map host port 8080 to container port 80
+docker network create <network-name>	Create custom network
+docker network connect <network> <container>	Attach container to a network
+
+💾 Volumes (Data Persistence)
+Command	Description
+docker volume ls	List volumes
+docker volume create <volume-name>	Create a volume
+docker run -v <volume>:/path <image>	Mount volume into container
+docker volume inspect <volume-name>	Inspect volume details
+docker volume rm <volume-name>	Remove volume
+
+🧼 Cleanup & System Prune
+Command	Description
+docker system prune	Remove all unused containers, images, etc.
+docker image prune	Remove dangling (unused) images
+docker container prune	Remove stopped containers
+docker volume prune	Remove unused volumes
+----------------------------------------------
+
+✅ Summary of Docker Network Types
+-----------------------------------------------
+Network Type	Explanation
+-----------------------------------------------------------------
+bridge (default)
+=================	
+✅ Default network for containers on a single host.
+✅ Gives separate internal IPs to each container.
+✅ Containers can talk to each other via their IP (or name if in a custom bridge).
+❗ Needs port mapping (-p) to access from outside.
+
+custom bridge
+=============
+	✅ Like default bridge, but gives more control:
+- You can name the network
+- DNS-based discovery (use container names to talk)
+- Better isolation for multi-container apps on one host
+
+none	
+==================
+❌ The container has no network at all.
+🔒 Used for security, manual networking, or debugging.
+host	✅ The container shares the host's network stack.
+✅ No isolation; no port mapping needed.
+❗ Can cause port conflicts. Only available natively on Linux.
+
+overlay	
+============================
+🌐 Used for multi-host networking.
+✅ Containers on different Docker hosts can talk like they’re on the same LAN.
+🔒 Often used with Docker Swarm.
+
+macvlan
+=========================
+	🖧 Gives containers a real IP on the LAN, like a VM.
+✅ The container acts like a separate machine on the network.
+✅ Used when containers need to be treated like regular hosts by other devices on the network.
+
+🔍 Example Use Cases:
+-----------------------------
+bridge – Simple apps running on one host
+
+custom bridge – Multi-container apps (like backend + database)
+
+host – High-performance use or direct access to host network
+
+overlay – Distributed systems / Docker Swarm clusters
+
+macvlan – IoT setups, containers that need to be visible on LAN
+
+none – Debugging, special network setups
+

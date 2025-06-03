@@ -1,0 +1,170 @@
+public and private key 
+
+why we use public key not private in managed node in ansible 
+
+"private key is like your secret signature."
+"public key is like a mathematical lock that can only be opened with that specific signature."
+
+e.g
+so like there are 10 systems all have public key now when i login in they will check my private key matches wiht the public key provided
+
+ssh user@managed-node-1
+That server looks into your ~/.ssh/authorized_keys file.
+
+Sees your public key stored there.
+
+Says: "Okay, I’ll accept this if your private key matches!"
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Control node connects to managed node.
+
+Managed node says:
+
+"Prove you own the private key that matches this public key I have."
+
+Managed node sends a random challenge string (kind of like a test question).
+
+Your control node signs that challenge using your private key (without exposing the key itself).
+
+
+
+The challenge is random every time
+
+The private key signs it
+
+The public key verifies it
+
+If it passes the math check → you're in
+
+No secrets ever exchanged
+
+===================================================================================================================
+2 ways of providng instructions
+YAMAL-----playbooks
+Adhoc commands
+
+for simple activities e.g install ngnix, restart the server
+
+adhoc command e.g:
+ansible all -m ping -u your_username — Explanation
+Part	What it does
+ansible	The command-line tool for running Ansible tasks
+all	Targets all hosts listed in your inventory (/etc/ansible/hosts)
+-m ping	Tells Ansible to use the ping module, which checks SSH connectivity
+-u your_username	Use your_username to SSH into the managed node
+
+
+
+--become means:
+“Run the command with elevated (sudo) privileges.”
+
+Ansible SSHs into the managed node as your_user
+
+Then it uses sudo to "become root" (or any user you specify with --become-user)
+
+
+Option	Meaning
+--become-user deploy	Become the deploy user instead of root
+--ask-become-pass	Prompt for sudo password
+
+
+
+✅ Command 1
+ansible all -m file -a "path=/tmp/deploy_dir state=directory" -u your_user --become --become-user deploy --ask-become-pass
+
+-u your_user → SSH login as your_user.
+
+--become → Use sudo.
+
+--become-user deploy → After login, run command as user deploy.
+
+--ask-become-pass → Prompt for sudo password.
+
+🧠 You use this when you want to log in as one user and run commands as a different user (not root), like deploy.
+
+✅ Command 2
+bash
+Copy
+Edit
+ansible all -m file -a "path=/tmp/deploy_dir state=directory" -u your_user --become --ask-become-pass
+🔍 Explanation:
+
+-u your_user → SSH as your_user.
+
+--become → Use sudo to become root (default).
+
+--ask-become-pass → Prompt for password.
+
+🧠 This is the most common case — SSH as normal user, then use sudo to do admin tasks as root.
+
+✅ Command 3
+bash
+Copy
+Edit
+ansible all -m file -a "path=/tmp/deploy_dir state=directory" -u your_user --become
+🔍 Explanation:
+
+Same as Command 2, but without prompting for password.
+
+⚠️ This only works if:
+
+Your user has passwordless sudo setup (i.e., no password is required when running sudo).
+
+
+
+
+
+
+
+playbooks:
+
+for bigger activities
+
+reusable , can be shared with other teams , can be used as modules and roles
+
+
+
+loops :
+{{ file_status.results[loop.index0].stat.exists }}
+
+file_status: This is the variable where the results of the stat module are stored using the register keyword.​
+
+.results: When you use register with a loop, Ansible stores the output as a list under the results attribute. Each item in this list corresponds to an iteration of the loop. ​
+Ansible Documentation
+
+cn-ansibledoc.readthedocs.io
+
+
+[loop.index0]: This accesses the current index of the loop (starting from 0) to retrieve the corresponding item from the results list.​
+
+.stat: Each item in the results list is a dictionary that includes a stat key, which contains another dictionary with details about the file.​
+
+.exists: This is a key within the stat dictionary that indicates whether the file exists (true or false). 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+6
+
+
+

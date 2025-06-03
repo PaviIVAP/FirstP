@@ -1,0 +1,9 @@
+bitbucket cloning automation code here to the local sysytem
+-b sub branch cloning 
+eg.-b SAO refers to sao sub- branch
+bitbucket--local--vscode
+code can be cloned in the vscode
+
+ctrl+shift+b command palatte
+
+co
